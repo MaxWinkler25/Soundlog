@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: max-soundlog
+    runtime: static
+    buildCommand: node build.js
+    staticPublishPath: ./public
