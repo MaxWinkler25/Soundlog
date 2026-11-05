@@ -298,3 +298,29 @@ html[data-theme="dark"] .loading-screen{
   .loading-chart{gap:5px;height:145px}
 }
 @media(prefers-reduced-motion:reduce){.loading-skeleton{animation:none}}
+
+
+/* Password input shown before the WIP preview loads. */
+dialog.wip-password-gate{
+  width:min(420px,calc(100vw - 32px));max-width:none;max-height:calc(100vh - 32px);
+  margin:auto;padding:0;border:1px solid #e4ebdf;border-radius:17px;overflow:auto;
+  background:#fff;color:#344738;box-shadow:0 28px 100px rgba(10,26,15,.28)
+}
+dialog.wip-password-gate::backdrop{background:rgba(13,26,17,.76);backdrop-filter:blur(5px)}
+.wip-password-gate__card{padding:30px 30px 24px}
+.wip-password-gate__brand{display:flex;align-items:center;gap:10px;margin-bottom:26px;font-size:21px;font-weight:800;letter-spacing:-.7px}
+.wip-password-gate__mark{display:grid;place-items:center;width:37px;height:37px;border-radius:11px;background:#e7f1db;color:#71933f;font-size:19px}
+.wip-password-gate__dot{color:#86a954}
+.wip-password-gate__card h1{margin:0 0 8px;font-size:25px;letter-spacing:-.6px}
+.wip-password-gate__copy{margin:0 0 22px;color:#839184;font-size:13px;line-height:1.6}
+.wip-password-gate__label{display:block;margin-bottom:7px;color:#526553;font-size:12px;font-weight:800}
+.wip-password-gate__input{box-sizing:border-box;width:100%;height:45px;padding:0 12px;border:1px solid #dfe8dc;border-radius:8px;background:#fbfcfa;color:#2b3e30;font-size:16px;letter-spacing:2px}
+.wip-password-gate__input:focus{outline:3px solid #a9d550;outline-offset:2px}
+.wip-password-gate__button{width:100%;height:44px;margin-top:13px;border:0;border-radius:8px;background:#203e2a;color:#f2f8ee;font-size:13px;font-weight:800;cursor:pointer}
+.wip-password-gate__button:hover{background:#2b5137}
+.wip-password-gate__error{min-height:18px;margin:10px 0 0;color:#a14d40;font-size:12px}
+html[data-theme="dark"] dialog.wip-password-gate{border-color:#34463a;background:#1b2b21;color:#e8f1e9}
+html[data-theme="dark"] .wip-password-gate__copy{color:#a8b7aa}
+html[data-theme="dark"] .wip-password-gate__label{color:#c6d8c9}
+html[data-theme="dark"] .wip-password-gate__input{border-color:#3b4d40;background:#132017;color:#e5eee5}
+@media(max-width:440px){.wip-password-gate__card{padding:24px 20px 18px}}

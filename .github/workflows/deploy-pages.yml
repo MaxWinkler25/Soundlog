@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, wip]
   workflow_dispatch:
 
 permissions: {}
@@ -18,8 +18,17 @@ jobs:
       contents: read
       pages: write
     steps:
-      - name: Check out repository
+      - name: Check out main site
         uses: actions/checkout@v6
+        with:
+          ref: main
+          path: main-src
+
+      - name: Check out WIP preview
+        uses: actions/checkout@v6
+        with:
+          ref: wip
+          path: wip-src
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -29,13 +38,19 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Build the standalone page
+      - name: Build main site
         run: python build.py
+        working-directory: main-src
+
+      - name: Build WIP preview
+        run: python build.py
+        working-directory: wip-src
 
       - name: Assemble the Pages artifact
         run: |
-          mkdir -p _site
-          cp index.html data.json _site/
+          mkdir -p _site/wip
+          cp main-src/index.html main-src/data.json _site/
+          cp wip-src/index.html wip-src/data.json _site/wip/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

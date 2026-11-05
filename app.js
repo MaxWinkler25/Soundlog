@@ -37,7 +37,7 @@
   function savedLanguage() {
     try { return localStorage.getItem('soundlog-language')==='de' ? 'de' : 'en'; } catch (_) { return 'en'; }
   }
-  const state = { data:embeddedData, lang:savedLanguage(), view:'overview', range:'all', selectedDate:null, query:'', sort:'plays', page:1, derived:null, warnings:[], invalidFile:false };
+  const state = { data:embeddedData, lang:savedLanguage(), view:'overview', range:'all', selectedDate:null, query:'', sort:'plays', page:1, derived:null, warnings:[], invalidFile:false, passwordPassed:false };
   const messages = {
     en: {
       pageTitle:'Max’s Soundlog — My listening archive', description:'Explore the songs, artists, and albums Max has been listening to on Spotify.',
@@ -91,6 +91,7 @@
       explainHtml:'<p><strong>Playback</strong> is the sum of the daily <code>playbackMs</code> values. A reported zero stays zero, even if that day has track entries.</p><p><strong>Plays</strong> are the sum of each track or episode’s <code>count</code>. Tracks, artists, and albums are grouped by their original JSON keys, not just by name.</p><p><strong>Item time</strong> is the sum of the <code>ms</code> values stored on that item. These values can differ from playback time; they are not treated as a substitute for it.</p><p>Negative or missing milliseconds are displayed as unknown and excluded from known totals. You can always open an item or day to see its exact original values and raw JSON.</p><p>“Last 7 days” and “Last 30 days” refer to calendar days counted back from the latest date in Max’s file.</p>',
       invalidFile:'The published data.json is invalid. Showing the copy embedded in the page instead.',
       loadingTitle:'Loading your listening archive…', loadingSubtitle:'Getting your music, stats, and listening history ready.',
+      passwordTitle:'WIP preview', passwordSubtitle:'Enter the password to continue.', passwordLabel:'Password', passwordContinue:'Continue', passwordWrong:'That password is incorrect. Try again.',
       invalidRoot:'Expected a JSON object with dates as keys, such as "2026-08-03".', missingDates:'No valid dates found. Use dates in YYYY-MM-DD format as the top-level keys.',
       invalidDay:'{date} must contain a day object.', invalidCollection:'{date}.{type} must be an object keyed by an item ID or URI.', invalidEntry:'{date}.{type}[{key}] must be an object.',
       ignoredOne:'{count} top-level key was not a valid date and is not included in the views.', ignoredMany:'{count} top-level keys were not valid dates and are not included in the views.'
@@ -147,6 +148,7 @@
       explainHtml:'<p><strong>Hörzeit</strong> ist die Summe der täglichen <code>playbackMs</code>-Werte. Eine gemeldete Null bleibt Null, auch wenn an diesem Tag Titel aufgezeichnet wurden.</p><p><strong>Wiedergaben</strong> sind die Summe der <code>count</code>-Werte für Titel und Folgen. Titel, Künstler und Alben werden nach ihren ursprünglichen JSON-Schlüsseln gruppiert, nicht nur nach Namen.</p><p><strong>Eintragsdauer</strong> ist die Summe der <code>ms</code>-Werte eines Eintrags. Sie kann von der Hörzeit abweichen und wird nicht als Ersatz dafür verwendet.</p><p>Negative oder fehlende Millisekunden gelten als unbekannt und werden aus bekannten Summen ausgeschlossen. Öffne einen Eintrag oder Tag, um die genauen Originalwerte und das JSON anzusehen.</p><p>„Letzte 7 Tage“ und „Letzte 30 Tage“ beziehen sich auf Kalendertage rückwärts ab dem neuesten Datum in Max’ Datei.</p>',
       invalidFile:'Die veröffentlichte data.json ist ungültig. Stattdessen wird die in der Seite eingebettete Kopie angezeigt.',
       loadingTitle:'Dein Hörarchiv wird geladen…', loadingSubtitle:'Musik, Statistiken und Hörverlauf werden vorbereitet.',
+      passwordTitle:'WIP-Vorschau', passwordSubtitle:'Gib das Passwort ein, um fortzufahren.', passwordLabel:'Passwort', passwordContinue:'Weiter', passwordWrong:'Das Passwort ist falsch. Bitte versuche es erneut.',
       invalidRoot:'Erwartet wird ein JSON-Objekt mit Datumsangaben als Schlüssel, zum Beispiel "2026-08-03".', missingDates:'Keine gültigen Datumsangaben gefunden. Verwende YYYY-MM-DD als Schlüssel auf oberster Ebene.',
       invalidDay:'{date} muss ein Tagesobjekt enthalten.', invalidCollection:'{date}.{type} muss ein Objekt mit Eintrags-IDs oder URIs als Schlüssel sein.', invalidEntry:'{date}.{type}[{key}] muss ein Objekt sein.',
       ignoredOne:'{count} Schlüssel auf oberster Ebene ist kein gültiges Datum und wird nicht angezeigt.', ignoredMany:'{count} Schlüssel auf oberster Ebene sind keine gültigen Datumsangaben und werden nicht angezeigt.'
@@ -490,7 +492,8 @@
   // for opening index.html directly or running in a network-restricted preview.
   async function readDataFile() {
     if (location.protocol === 'file:') return null;
-    const response = await fetch('./data.json', {cache:'no-store'});
+    const base=new URL(location.href);if(!base.pathname.endsWith('/'))base.pathname+='/';
+    const response = await fetch(new URL('data.json',base), {cache:'no-store'});
     if (!response.ok) return null;
     try {
       const data = await response.json();
@@ -505,6 +508,41 @@
     state.data=data;state.warnings=warnings;
     state.view='overview';state.range='all';state.selectedDate=null;state.query='';state.sort='plays';state.page=1;
     render();
+  }
+
+  function showWipPasswordGate() {
+    return new Promise(resolve => {
+      const gate=document.createElement('dialog');
+      gate.className='wip-password-gate';
+      const title=esc(tr('passwordTitle')), subtitle=esc(tr('passwordSubtitle'));
+      const label=esc(tr('passwordLabel')), button=esc(tr('passwordContinue'));
+      gate.setAttribute('aria-labelledby','wip-password-title');
+      gate.innerHTML='<form class="wip-password-gate__card" id="wip-password-form">'+
+        '<div class="wip-password-gate__brand"><span class="wip-password-gate__mark">♫</span><span>soundlog<span class="wip-password-gate__dot">.</span></span></div>'+
+        '<h1 id="wip-password-title">'+title+'</h1>'+
+        '<p class="wip-password-gate__copy">'+subtitle+'</p>'+
+        '<label class="wip-password-gate__label" for="wip-password">'+label+'</label>'+
+        '<input class="wip-password-gate__input" id="wip-password" name="password" type="password" inputmode="numeric" autocomplete="current-password" required>'+
+        '<button class="wip-password-gate__button" type="submit">'+button+'</button>'+
+        '<p class="wip-password-gate__error" id="wip-password-error" role="status" aria-live="polite"></p>'+
+        '</form>';
+      document.body.appendChild(gate);
+      gate.showModal();
+      const form=gate.querySelector('#wip-password-form');
+      const input=gate.querySelector('#wip-password');
+      const error=gate.querySelector('#wip-password-error');
+      form.addEventListener('submit',event=>{
+        event.preventDefault();
+        if(input.value==='7516'){
+          state.passwordPassed=true;
+          gate.close();gate.remove();resolve(true);
+          return;
+        }
+        error.textContent=tr('passwordWrong');
+        input.value='';input.focus();
+      });
+      input.focus();
+    });
   }
 
   function showInvalidDataTemplate() {
@@ -790,6 +828,7 @@
     });
   }
   async function init() {
+    await showWipPasswordGate();
     setUpStatic();
     try {
       const loaded=await readDataFile();
@@ -804,5 +843,5 @@
       applyData(embeddedData);
     }
   }
-  init().catch(err=>{console.error(err);if(state.invalidFile)showInvalidDataTemplate();else applyData(embeddedData);});
+  init().catch(err=>{console.error(err);if(!state.passwordPassed)return;if(state.invalidFile)showInvalidDataTemplate();else applyData(embeddedData);});
 })();
