@@ -258,6 +258,73 @@ html[data-theme="dark"]{
 }
 @media(max-width:730px){.range-control .dropdown-menu{left:0;right:auto}}
 @media(prefers-reduced-motion:reduce){.dropdown-trigger,.dropdown .dropdown-chevron{transition:none}}
+
+
+/* Full-page loading placeholders replace listening content when data.json is invalid. */
+.loading-screen{
+  --loading-bg:#f5f7f2;--loading-card:#fff;--loading-border:#e8eee4;
+  --loading-skeleton:#edf1eb;--loading-shine:#fafcf8;--loading-ink:#344738;--loading-muted:#8b9a8b;
+  position:fixed;inset:0;z-index:999;overflow:auto;box-sizing:border-box;min-height:100vh;
+  padding:clamp(20px,4vw,52px);background:var(--loading-bg);color:var(--loading-ink)
+}
+html[data-theme="dark"] .loading-screen{
+  --loading-bg:#101a14;--loading-card:#1b2b21;--loading-border:#34463a;
+  --loading-skeleton:#2b3d30;--loading-shine:#3b4f40;--loading-ink:#e8f1e9;--loading-muted:#a8b7aa
+}
+.loading-shell{max-width:1160px;margin:0 auto}
+.loading-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:52px}
+.loading-brand{display:flex;align-items:center;gap:10px;color:var(--loading-ink);font-size:21px;font-weight:800;letter-spacing:-.7px}
+.loading-brand-mark{display:grid;place-items:center;width:37px;height:37px;border-radius:11px;background:#e7f1db;color:#71933f;font-size:19px}
+.loading-brand-dot{color:#86a954}
+.loading-controls{display:flex;gap:8px}
+.loading-skeleton{display:block;border-radius:7px;background:linear-gradient(100deg,var(--loading-skeleton) 25%,var(--loading-shine) 50%,var(--loading-skeleton) 75%);background-size:200% 100%;animation:soundlog-loading-shimmer 1.4s ease-in-out infinite}
+.loading-control{width:94px;height:36px;border:1px solid var(--loading-border);border-radius:8px}
+.loading-content{max-width:1090px;margin:0 auto}
+.loading-kicker{margin:0 0 6px;color:var(--loading-muted);font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.loading-title{margin:0 0 24px;font-size:clamp(30px,4vw,42px);line-height:1.15;letter-spacing:-1.4px}
+.loading-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.loading-stat-card,.loading-panel{min-width:0;border:1px solid var(--loading-border);border-radius:11px;background:var(--loading-card);box-shadow:0 5px 18px rgba(20,40,24,.04)}
+.loading-stat-card{min-height:123px;padding:18px;box-sizing:border-box}
+.loading-label{width:42%;height:9px}
+.loading-number{width:58%;height:25px;margin-top:15px}
+.loading-caption{width:73%;height:8px;margin-top:11px}
+.loading-panels{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(250px,1fr);gap:14px}
+.loading-panel{padding:19px 20px}
+.loading-panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.loading-heading{width:34%;height:13px}
+.loading-badge{width:70px;height:24px;border-radius:20px}
+.loading-chart{display:flex;align-items:flex-end;justify-content:space-around;gap:10px;height:176px;padding:4px 0 0}
+.loading-bar{flex:1;min-width:5px;border-radius:5px 5px 2px 2px}
+.loading-artist-list{display:grid;gap:14px;padding:4px 0}
+.loading-artist{display:flex;align-items:center;gap:11px}
+.loading-avatar{width:38px;height:38px;flex:none;border-radius:50%}
+.loading-artist-lines,.loading-track-lines{display:flex;flex:1;flex-direction:column;gap:7px;min-width:0}
+.loading-artist-name{width:70%;height:10px}
+.loading-artist-meta{width:44%;height:8px}
+.loading-song-panel{margin-top:14px}
+.loading-track-list{display:grid}
+.loading-track{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--loading-border)}
+.loading-cover{width:42px;height:42px;flex:none;border-radius:7px}
+.loading-track-name{width:min(300px,62%);height:10px}
+.loading-track-meta{width:min(210px,42%);height:8px}
+.loading-track-value{width:44px;height:10px;margin-left:auto}
+@keyframes soundlog-loading-shimmer{to{background-position:-200% 0}}
+@media(max-width:760px){
+  .loading-header{margin-bottom:36px}
+  .loading-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .loading-panels{grid-template-columns:1fr;gap:10px}
+  .loading-song-panel{margin-top:10px}
+}
+@media(max-width:440px){
+  .loading-screen{padding:18px 14px}
+  .loading-header{margin-bottom:28px}
+  .loading-controls{gap:5px}
+  .loading-control{width:42px;height:32px}
+  .loading-stat-card{min-height:108px;padding:14px}
+  .loading-panel{padding:16px}
+  .loading-chart{gap:5px;height:145px}
+}
+@media(prefers-reduced-motion:reduce){.loading-skeleton{animation:none}}
 </style>
 </head>
 <body>
@@ -397,6 +464,7 @@ html[data-theme="dark"]{
       understanding:'UNDERSTANDING THE DATA', numbersTitle:'What do the numbers mean?', gotIt:'Got it',
       explainHtml:'<p><strong>Playback</strong> is the sum of the daily <code>playbackMs</code> values. A reported zero stays zero, even if that day has track entries.</p><p><strong>Plays</strong> are the sum of each track or episode’s <code>count</code>. Tracks, artists, and albums are grouped by their original JSON keys, not just by name.</p><p><strong>Item time</strong> is the sum of the <code>ms</code> values stored on that item. These values can differ from playback time; they are not treated as a substitute for it.</p><p>Negative or missing milliseconds are displayed as unknown and excluded from known totals. You can always open an item or day to see its exact original values and raw JSON.</p><p>“Last 7 days” and “Last 30 days” refer to calendar days counted back from the latest date in Max’s file.</p>',
       invalidFile:'The published data.json is invalid. Showing the copy embedded in the page instead.',
+      loadingTitle:'Loading your listening archive…', loadingSubtitle:'Getting your music, stats, and listening history ready.',
       invalidRoot:'Expected a JSON object with dates as keys, such as "2026-08-03".', missingDates:'No valid dates found. Use dates in YYYY-MM-DD format as the top-level keys.',
       invalidDay:'{date} must contain a day object.', invalidCollection:'{date}.{type} must be an object keyed by an item ID or URI.', invalidEntry:'{date}.{type}[{key}] must be an object.',
       ignoredOne:'{count} top-level key was not a valid date and is not included in the views.', ignoredMany:'{count} top-level keys were not valid dates and are not included in the views.'
@@ -452,6 +520,7 @@ html[data-theme="dark"]{
       understanding:'DIE DATEN VERSTEHEN', numbersTitle:'Was bedeuten die Zahlen?', gotIt:'Verstanden',
       explainHtml:'<p><strong>Hörzeit</strong> ist die Summe der täglichen <code>playbackMs</code>-Werte. Eine gemeldete Null bleibt Null, auch wenn an diesem Tag Titel aufgezeichnet wurden.</p><p><strong>Wiedergaben</strong> sind die Summe der <code>count</code>-Werte für Titel und Folgen. Titel, Künstler und Alben werden nach ihren ursprünglichen JSON-Schlüsseln gruppiert, nicht nur nach Namen.</p><p><strong>Eintragsdauer</strong> ist die Summe der <code>ms</code>-Werte eines Eintrags. Sie kann von der Hörzeit abweichen und wird nicht als Ersatz dafür verwendet.</p><p>Negative oder fehlende Millisekunden gelten als unbekannt und werden aus bekannten Summen ausgeschlossen. Öffne einen Eintrag oder Tag, um die genauen Originalwerte und das JSON anzusehen.</p><p>„Letzte 7 Tage“ und „Letzte 30 Tage“ beziehen sich auf Kalendertage rückwärts ab dem neuesten Datum in Max’ Datei.</p>',
       invalidFile:'Die veröffentlichte data.json ist ungültig. Stattdessen wird die in der Seite eingebettete Kopie angezeigt.',
+      loadingTitle:'Dein Hörarchiv wird geladen…', loadingSubtitle:'Musik, Statistiken und Hörverlauf werden vorbereitet.',
       invalidRoot:'Erwartet wird ein JSON-Objekt mit Datumsangaben als Schlüssel, zum Beispiel "2026-08-03".', missingDates:'Keine gültigen Datumsangaben gefunden. Verwende YYYY-MM-DD als Schlüssel auf oberster Ebene.',
       invalidDay:'{date} muss ein Tagesobjekt enthalten.', invalidCollection:'{date}.{type} muss ein Objekt mit Eintrags-IDs oder URIs als Schlüssel sein.', invalidEntry:'{date}.{type}[{key}] muss ein Objekt sein.',
       ignoredOne:'{count} Schlüssel auf oberster Ebene ist kein gültiges Datum und wird nicht angezeigt.', ignoredMany:'{count} Schlüssel auf oberster Ebene sind keine gültigen Datumsangaben und werden nicht angezeigt.'
@@ -811,6 +880,34 @@ html[data-theme="dark"]{
     state.view='overview';state.range='all';state.selectedDate=null;state.query='';state.sort='plays';state.page=1;
     render();
   }
+
+  function showInvalidDataTemplate() {
+    const title=esc(tr('loadingTitle')), subtitle=esc(tr('loadingSubtitle'));
+    const stats=Array.from({length:4},()=>'<article class="loading-stat-card"><span class="loading-skeleton loading-label"></span><span class="loading-skeleton loading-number"></span><span class="loading-skeleton loading-caption"></span></article>').join('');
+    const bars=[34,52,39,64,47,73,58,83,61,92,68,77].map(height=>'<i class="loading-skeleton loading-bar" style="height:'+height+'%" aria-hidden="true"></i>').join('');
+    const artists=Array.from({length:4},()=>'<div class="loading-artist"><span class="loading-skeleton loading-avatar"></span><span class="loading-artist-lines"><i class="loading-skeleton loading-artist-name"></i><i class="loading-skeleton loading-artist-meta"></i></span></div>').join('');
+    const tracks=Array.from({length:5},()=>'<div class="loading-track"><span class="loading-skeleton loading-cover"></span><span class="loading-track-lines"><i class="loading-skeleton loading-track-name"></i><i class="loading-skeleton loading-track-meta"></i></span><span class="loading-skeleton loading-track-value"></span></div>').join('');
+    const markup=[
+      '<main class="loading-screen" role="status" aria-live="polite" aria-busy="true">',
+      '<div class="loading-shell">',
+      '<header class="loading-header">',
+      '<div class="loading-brand"><span class="loading-brand-mark">♫</span><span>soundlog<span class="loading-brand-dot">.</span></span></div>',
+      '<div class="loading-controls" aria-hidden="true"><span class="loading-skeleton loading-control"></span><span class="loading-skeleton loading-control"></span><span class="loading-skeleton loading-control"></span></div>',
+      '</header>',
+      '<section class="loading-content" aria-label="'+title+'">',
+      '<p class="loading-kicker">'+subtitle+'</p>',
+      '<h1 class="loading-title">'+title+'</h1>',
+      '<div class="loading-stats" aria-hidden="true">'+stats+'</div>',
+      '<div class="loading-panels">',
+      '<section class="loading-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span><span class="loading-skeleton loading-badge"></span></div><div class="loading-chart">'+bars+'</div></section>',
+      '<section class="loading-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span></div><div class="loading-artist-list">'+artists+'</div></section>',
+      '</div>',
+      '<section class="loading-panel loading-song-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span><span class="loading-skeleton loading-badge"></span></div><div class="loading-track-list">'+tracks+'</div></section>',
+      '</section></div></main>'
+    ].join('');
+    document.title=tr('loadingTitle');
+    document.body.innerHTML=markup;
+  }
   // Build a real button/listbox UI around each native select. The select remains
   // the single source of truth for existing filters, language and theme logic.
   function enhanceDropdown(select) {
@@ -1074,10 +1171,14 @@ html[data-theme="dark"]{
       else applyData(embeddedData);
     } catch (err) {
       state.invalidFile=!!err.invalidData;
-      applyData(embeddedData,state.invalidFile?[tr('invalidFile')]:[]);
+      if (state.invalidFile) {
+        showInvalidDataTemplate();
+        return;
+      }
+      applyData(embeddedData);
     }
   }
-  init().catch(err=>{console.error(err);applyData(embeddedData);});
+  init().catch(err=>{console.error(err);if(state.invalidFile)showInvalidDataTemplate();else applyData(embeddedData);});
 })();
 </script>
 </body>
