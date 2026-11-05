@@ -18,7 +18,7 @@ When the website is served over HTTP, it reads `data.json` each time the page lo
 
 ## Share with friends
 
-Publish **both `index.html` and `data.json` in the same folder** on a static host such as GitHub Pages or Netlify, then share the website link. The website does not automatically upload or publish itself.
+To publish on GitHub Pages, use the included workflow at `.github/workflows/deploy-pages.yml`. It rebuilds `index.html` from the editable source files, then deploys `index.html` and `data.json` whenever `main` changes; you can also run it manually from the **Actions** tab. In **Settings → Pages**, choose **GitHub Actions** as the publishing source if it is not already selected. The workflow summary and **Settings → Pages** show the site URL. For another static host, publish `index.html` and `data.json` in the same folder.
 
 The published JSON, including all original fields and listening history, is accessible to anyone with the link. Remove anything you do not want to share before publishing. Cover art may load from Spotify or the image URLs in the JSON.
 
