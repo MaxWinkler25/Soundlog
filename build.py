@@ -11,7 +11,14 @@ font_css='\n'.join([
  f"@font-face{{font-family:'DM Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url(data:font/woff2;base64,{font('dmsans-ext.woff2')}) format('woff2');unicode-range:{ext}}}",
  f"@font-face{{font-family:'DM Serif Display';font-style:italic;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,{font('dmserif-latin.woff2')}) format('woff2');unicode-range:{latin}}}",
  f"@font-face{{font-family:'DM Serif Display';font-style:italic;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,{font('dmserif-ext.woff2')}) format('woff2');unicode-range:{ext}}}"])
-def inline_json(path): return json.dumps(json.loads(path.read_text(encoding='utf8')),ensure_ascii=False,separators=(',',':')).replace('</','<\\/')
+def inline_json(path):
+    try:
+        value=json.loads(path.read_text(encoding='utf8'))
+    except (OSError,json.JSONDecodeError):
+        if path.name!='data.json':
+            raise
+        value={}
+    return json.dumps(value,ensure_ascii=False,separators=(',',':')).replace('</','<\\/')
 template=(p/'index.template.html').read_text(encoding='utf8')
 parts={'/*__FONT_CSS__*/':font_css,'/*__SITE_CSS__*/':(p/'site.css').read_text(encoding='utf8'),'/*__EMBEDDED_JSON__*/':inline_json(p/'data.json'),'/*__COVERS_JSON__*/':inline_json(assets/'covers.json'),'/*__APP_JS__*/':(p/'app.js').read_text(encoding='utf8').replace('</script','<\\/script')}
 for marker,value in parts.items():
