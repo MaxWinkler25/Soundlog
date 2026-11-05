@@ -90,6 +90,7 @@
       understanding:'UNDERSTANDING THE DATA', numbersTitle:'What do the numbers mean?', gotIt:'Got it',
       explainHtml:'<p><strong>Playback</strong> is the sum of the daily <code>playbackMs</code> values. A reported zero stays zero, even if that day has track entries.</p><p><strong>Plays</strong> are the sum of each track or episode’s <code>count</code>. Tracks, artists, and albums are grouped by their original JSON keys, not just by name.</p><p><strong>Item time</strong> is the sum of the <code>ms</code> values stored on that item. These values can differ from playback time; they are not treated as a substitute for it.</p><p>Negative or missing milliseconds are displayed as unknown and excluded from known totals. You can always open an item or day to see its exact original values and raw JSON.</p><p>“Last 7 days” and “Last 30 days” refer to calendar days counted back from the latest date in Max’s file.</p>',
       invalidFile:'The published data.json is invalid. Showing the copy embedded in the page instead.',
+      loadingTitle:'Loading your listening archive…', loadingSubtitle:'Getting your music, stats, and listening history ready.',
       invalidRoot:'Expected a JSON object with dates as keys, such as "2026-08-03".', missingDates:'No valid dates found. Use dates in YYYY-MM-DD format as the top-level keys.',
       invalidDay:'{date} must contain a day object.', invalidCollection:'{date}.{type} must be an object keyed by an item ID or URI.', invalidEntry:'{date}.{type}[{key}] must be an object.',
       ignoredOne:'{count} top-level key was not a valid date and is not included in the views.', ignoredMany:'{count} top-level keys were not valid dates and are not included in the views.'
@@ -145,6 +146,7 @@
       understanding:'DIE DATEN VERSTEHEN', numbersTitle:'Was bedeuten die Zahlen?', gotIt:'Verstanden',
       explainHtml:'<p><strong>Hörzeit</strong> ist die Summe der täglichen <code>playbackMs</code>-Werte. Eine gemeldete Null bleibt Null, auch wenn an diesem Tag Titel aufgezeichnet wurden.</p><p><strong>Wiedergaben</strong> sind die Summe der <code>count</code>-Werte für Titel und Folgen. Titel, Künstler und Alben werden nach ihren ursprünglichen JSON-Schlüsseln gruppiert, nicht nur nach Namen.</p><p><strong>Eintragsdauer</strong> ist die Summe der <code>ms</code>-Werte eines Eintrags. Sie kann von der Hörzeit abweichen und wird nicht als Ersatz dafür verwendet.</p><p>Negative oder fehlende Millisekunden gelten als unbekannt und werden aus bekannten Summen ausgeschlossen. Öffne einen Eintrag oder Tag, um die genauen Originalwerte und das JSON anzusehen.</p><p>„Letzte 7 Tage“ und „Letzte 30 Tage“ beziehen sich auf Kalendertage rückwärts ab dem neuesten Datum in Max’ Datei.</p>',
       invalidFile:'Die veröffentlichte data.json ist ungültig. Stattdessen wird die in der Seite eingebettete Kopie angezeigt.',
+      loadingTitle:'Dein Hörarchiv wird geladen…', loadingSubtitle:'Musik, Statistiken und Hörverlauf werden vorbereitet.',
       invalidRoot:'Erwartet wird ein JSON-Objekt mit Datumsangaben als Schlüssel, zum Beispiel "2026-08-03".', missingDates:'Keine gültigen Datumsangaben gefunden. Verwende YYYY-MM-DD als Schlüssel auf oberster Ebene.',
       invalidDay:'{date} muss ein Tagesobjekt enthalten.', invalidCollection:'{date}.{type} muss ein Objekt mit Eintrags-IDs oder URIs als Schlüssel sein.', invalidEntry:'{date}.{type}[{key}] muss ein Objekt sein.',
       ignoredOne:'{count} Schlüssel auf oberster Ebene ist kein gültiges Datum und wird nicht angezeigt.', ignoredMany:'{count} Schlüssel auf oberster Ebene sind keine gültigen Datumsangaben und werden nicht angezeigt.'
@@ -504,6 +506,34 @@
     state.view='overview';state.range='all';state.selectedDate=null;state.query='';state.sort='plays';state.page=1;
     render();
   }
+
+  function showInvalidDataTemplate() {
+    const title=esc(tr('loadingTitle')), subtitle=esc(tr('loadingSubtitle'));
+    const stats=Array.from({length:4},()=>'<article class="loading-stat-card"><span class="loading-skeleton loading-label"></span><span class="loading-skeleton loading-number"></span><span class="loading-skeleton loading-caption"></span></article>').join('');
+    const bars=[34,52,39,64,47,73,58,83,61,92,68,77].map(height=>'<i class="loading-skeleton loading-bar" style="height:'+height+'%" aria-hidden="true"></i>').join('');
+    const artists=Array.from({length:4},()=>'<div class="loading-artist"><span class="loading-skeleton loading-avatar"></span><span class="loading-artist-lines"><i class="loading-skeleton loading-artist-name"></i><i class="loading-skeleton loading-artist-meta"></i></span></div>').join('');
+    const tracks=Array.from({length:5},()=>'<div class="loading-track"><span class="loading-skeleton loading-cover"></span><span class="loading-track-lines"><i class="loading-skeleton loading-track-name"></i><i class="loading-skeleton loading-track-meta"></i></span><span class="loading-skeleton loading-track-value"></span></div>').join('');
+    const markup=[
+      '<main class="loading-screen" role="status" aria-live="polite" aria-busy="true">',
+      '<div class="loading-shell">',
+      '<header class="loading-header">',
+      '<div class="loading-brand"><span class="loading-brand-mark">♫</span><span>soundlog<span class="loading-brand-dot">.</span></span></div>',
+      '<div class="loading-controls" aria-hidden="true"><span class="loading-skeleton loading-control"></span><span class="loading-skeleton loading-control"></span><span class="loading-skeleton loading-control"></span></div>',
+      '</header>',
+      '<section class="loading-content" aria-label="'+title+'">',
+      '<p class="loading-kicker">'+subtitle+'</p>',
+      '<h1 class="loading-title">'+title+'</h1>',
+      '<div class="loading-stats" aria-hidden="true">'+stats+'</div>',
+      '<div class="loading-panels">',
+      '<section class="loading-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span><span class="loading-skeleton loading-badge"></span></div><div class="loading-chart">'+bars+'</div></section>',
+      '<section class="loading-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span></div><div class="loading-artist-list">'+artists+'</div></section>',
+      '</div>',
+      '<section class="loading-panel loading-song-panel" aria-hidden="true"><div class="loading-panel-head"><span class="loading-skeleton loading-heading"></span><span class="loading-skeleton loading-badge"></span></div><div class="loading-track-list">'+tracks+'</div></section>',
+      '</section></div></main>'
+    ].join('');
+    document.title=tr('loadingTitle');
+    document.body.innerHTML=markup;
+  }
   // Build a real button/listbox UI around each native select. The select remains
   // the single source of truth for existing filters, language and theme logic.
   function enhanceDropdown(select) {
@@ -767,8 +797,12 @@
       else applyData(embeddedData);
     } catch (err) {
       state.invalidFile=!!err.invalidData;
-      applyData(embeddedData,state.invalidFile?[tr('invalidFile')]:[]);
+      if (state.invalidFile) {
+        showInvalidDataTemplate();
+        return;
+      }
+      applyData(embeddedData);
     }
   }
-  init().catch(err=>{console.error(err);applyData(embeddedData);});
+  init().catch(err=>{console.error(err);if(state.invalidFile)showInvalidDataTemplate();else applyData(embeddedData);});
 })();

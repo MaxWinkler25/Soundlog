@@ -38,13 +38,8 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Build main site when data is valid
-        run: |
-          if python -c "import json,pathlib; json.loads(pathlib.Path('data.json').read_text(encoding='utf-8'))"; then
-            python build.py
-          else
-            echo "main data.json is invalid; using the checked-in index.html."
-          fi
+      - name: Build main site
+        run: python build.py
         working-directory: main-src
 
       - name: Build WIP preview
