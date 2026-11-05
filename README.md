@@ -1,47 +1,57 @@
-# Max’s Soundlog — Render deployment
+# Max's Soundlog
 
-This is the complete site and build folder for a **Render Static Site**. The build uses only Node.js built-ins: no packages, API keys, backend, or start command are required.
+A shareable listening-history site for Max. Friends can browse tracks, artists, albums, shows, and daily listening history without an account. The website reads the date-keyed JSON from `data.json` and does not provide a visitor upload button.
 
-> **Before publishing:** `data.json` currently contains a reconstructed example, not Max’s full original listening history. Replace it with the original JSON if you want exact, complete statistics. The site and its full `data.json` will be publicly accessible to anyone who can reach the site.
+> **Before sharing:** the current `data.json` is a reconstructed excerpt of the example from the request, not the full original history. Its artist and album entries were reconstructed from tracks. Replace it with the original JSON for exact, complete results.
 
-## Deploy on Render
+## Update your music
 
-1. Download and extract the ZIP. Upload **the contents of the `Soundlog-Render` folder** to the root of a GitHub, GitLab, or Bitbucket repository. Include the `assets` folder, `build.js`, `data.json`, and all the other source files. Do not upload the ZIP as a single file to the repository.
-2. In the [Render Dashboard](https://dashboard.render.com/), choose **New → Static Site** and connect that repository.
-3. Select the branch containing the files, such as `main`. If these files are at the repository root, leave **Root Directory** blank.
-4. Enter these settings:
-   - **Build Command:** `node build.js`
-   - **Publish Directory:** `public`
-5. Click **Deploy Static Site** (or **Create Static Site**). When the build completes, Render displays the new `onrender.com` URL.
+1. Replace the contents of **`data.json`** with your original JSON object, using the same format as `example-data.json`.
+2. Preview the website with a local web server:
+   ```bash
+   cd soundlog
+   python3 -m http.server 8000
+   ```
+3. Open `http://localhost:8000`. Refresh after changing `data.json` to see the updated history.
 
-Alternatively, use **New → Blueprint** and connect the repo; `render.yaml` describes the same Static Site settings. No paid web service or database is needed for the website itself. Render’s included usage limits and plans may change; check your dashboard for current details.
+When the website is served over HTTP, it reads `data.json` each time the page loads. Previously imported data in a visitor's browser is ignored.
 
-## Update the listening history
+## Share with friends
 
-Replace the **root `data.json`** with your real date-keyed JSON, then commit and push the change to the branch connected to Render. With automatic deploys enabled, Render rebuilds the site and refreshes its embedded fallback on every push. Do not edit `public/data.json` alone; the next build overwrites it from the root file. The site reads the published `data.json` when visitors load it.
+Publish **both `index.html` and `data.json` in the same folder** on a static host such as GitHub Pages or Netlify, then share the website link. The website does not automatically upload or publish itself.
 
-## Build and preview locally
+The published JSON, including all original fields and listening history, is accessible to anyone with the link. Remove anything you do not want to share before publishing. Cover art may load from Spotify or the image URLs in the JSON.
 
-You need Node.js. From this folder run:
+### Share a single HTML file instead
 
-```bash
-node build.js
-```
-
-The finished files are `public/index.html` and `public/data.json`. To preview them over HTTP, if you also have Python installed:
+The HTML includes an embedded copy of the data for direct file opening and restricted previews. After changing `data.json`, run this command before sharing `index.html` by itself:
 
 ```bash
-python3 -m http.server 8000 --directory public
+python3 build.py
 ```
 
-Then visit `http://localhost:8000`. You can also open `public/index.html` directly; it uses the embedded copy of the JSON.
+The builder packages the current `data.json`, styles, code, fonts, and example cover thumbnails into `index.html`. A directly opened HTML file cannot automatically read the neighboring JSON file because of browser security restrictions. When hosted over HTTP, changing `data.json` does not require a rebuild, but rebuilding also updates the embedded fallback.
 
-## What is included
+## Dropdown menus
 
-- `render.yaml` — optional Render Blueprint for a Static Site.
-- `build.js` — generates the standalone HTML and copies the current JSON into `public`.
-- `data.json` — the owner-editable listening history; `example-data.json` is a format reference.
-- `index.template.html`, `app.js`, `site.css`, and `assets/` — source, fonts, and sample cover thumbnails.
-- `public/` — already-built files. Render rebuilds these from the root source files at deploy time.
+Use the custom date, theme, language, and sorting menus with a mouse, touch, or keyboard. Arrow keys move through choices, Enter or Space selects, and Escape closes the menu without changing it.
 
-The website supports English and German, System/Light/Dark theme options, custom accessible dropdowns, date filters, browsing, details, and original JSON. No visitor import button is provided.
+## Language
+
+English is the default. Visitors can switch between **English** and **Deutsch** using the language menu at the top. The choice is saved in their browser when storage is available; track names and original JSON fields remain unchanged.
+
+## Light and dark mode
+
+The theme follows each visitor’s device setting by default. Use the **System / Light / Dark** menu at the top to choose a mode; the choice is saved in that browser when storage is available.
+
+## About the numbers
+
+- **Total playback** is the sum of the daily `playbackMs` values. Zero remains zero.
+- **Plays** are summed from each track or episode's `count`.
+- **Item time** is summed from the item's `ms`, separately from playback. Negative or missing durations are treated as unknown but remain visible in the original JSON.
+- Items are grouped by their original JSON keys. Podcasts, non-Spotify keys, missing artist URIs, Spotify image URIs, and standard image URLs are supported.
+- Date ranges are measured back from the latest recorded date, not from the current day.
+
+## Editing the design
+
+`app.js`, `site.css`, and `index.template.html` are the readable source files. Run `python3 build.py` after changing them to rebuild `index.html`. Fonts and example cover thumbnails used by the builder are in `.buildassets/`.
